@@ -20,7 +20,10 @@ h1 {
 	text-align: center;
 
 }
-
+canvas {
+	position: fixed;
+	top: 0;
+}
 footer {
 	height: 3em;
 	position: fixed;

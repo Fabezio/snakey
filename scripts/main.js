@@ -11,6 +11,19 @@
 	let applee;
 	let score;
 	let timeout;
+	
+	const newGame = () => {
+		snakee = new Snake([
+			[6, 4],
+			[5, 4],
+			[4, 4],
+			[3, 4]
+		], "right");
+		applee = new Apple([10, 10]);
+		score = 0;
+		refreshCanvas();
+	}
+	
 	init();
 	/* creation d'un fond 900x600 avec cadre fin noir */
 	function init() {
@@ -23,14 +36,7 @@
 		canvas.style.background = "#ddd";
 		document.body.appendChild(canvas);
 		ctx = canvas.getContext('2d');
-		snakee = new Snake([
-			[6, 4],
-			[5, 4],
-			[4, 4]
-		], "right");
-		applee = new Apple([10, 10]);
-		score = 0;
-		refreshCanvas();
+		newGame()
 	}
 	/* ajout d'un rectangle rouge 100x50 au coin supérieur gauche,
 	distance 30x30, dans un plan 2D,
@@ -72,17 +78,8 @@
 	}
 
 	function restart() {
-		snakee = new Snake([
-			[6, 4],
-			[5, 4],
-			[4, 4],
-			[3, 4],
-			[2, 4]
-		], 'right');
-		applee = new Apple([10, 10]);
-		score = 0;
+		newGame()
 		clearTimeout(timeout);
-		refreshCanvas();
 	}
 
 	function drawScore() {
@@ -104,13 +101,17 @@
 	}
 	/* creation du serpent */
 	function Snake(body, direction) {
+		const r = Math.floor(Math.random() * 200)
+		const g = Math.floor(Math.random() * 256)
+		const b = Math.floor(Math.random() * 256)
+		const snakeColor = `rgb(${r}, ${g}, ${b})`
 		this.body = body;
 		this.direction = direction;
 		this.ateApple = false;
 		this.draw = function() {
 			ctx.save();
-			ctx.fillStyle = "navy";
-			for (let i = 0; i < this.body.length; i++) drawBlock(ctx, this.body[i]);
+			ctx.fillStyle = snakeColor;
+			for (i in this.body) drawBlock(ctx, this.body[i]);
 			ctx.restore();
 		}
 		/* faire avancer le serpent:
@@ -135,8 +136,7 @@
 					throw ("Invalid Direction!");
 			}
 			this.body.unshift(nextPosition);
-			if (!this.ateApple) this.body.pop();
-			else this.ateApple = false;
+			!this.ateApple ? this.body.pop() : this.ateApple = false;
 		}
 		this.setDirection = function(newDirection) {
 			let allowedDirections;
@@ -174,20 +174,20 @@
 		}
 		this.isEatingApple = function(appleToEat) {
 			const head = this.body[0];
-			if (head[0] === appleToEat.position[0] && head[1] === appleToEat.position[1]) 
-				return true;
-			else 
-				return false;
+			return (head[0] === appleToEat.position[0] && head[1] === appleToEat.position[1])
+				?  true
+				:  false
+			
 		}
 	}
 
 	function Apple(position) {
 		this.position = position;
 		this.draw = function() {
-			let g = Math.floor(Math.random() * 256)
-			let b = Math.floor(Math.random() * 256)
-			ctx.save();
+			// let g = Math.floor(Math.random() * 256)
+			// let b = Math.floor(Math.random() * 256)
 			// ctx.fillStyle = `rgb(255, ${g}, ${b})`;
+			ctx.save();
 			ctx.fillStyle = "lime";
 			ctx.beginPath();
 			const radius = blockSize / 2;
@@ -204,28 +204,31 @@
 		}
 		this.isOnSnake = function(snakeToCheck) {
 			let isOnSnake = false;
-			for (let i = 0; i < snakeToCheck.body.length; i++)
-				if (this.position[0] === snakeToCheck.body[i][0] && this.position[1] === snakeToCheck.body[i][1]) isOnSnake = true;
+			// for (let i = 0; i < snakeToCheck.body.length; i++)
+			for (i in snakeToCheck.body)
+				if (this.position[0] === snakeToCheck.body[i][0] && this.position[1] === snakeToCheck.body[i][1]) 
+					isOnSnake = true;
 			return isOnSnake;
 		}
 	}
 	document.onkeydown = function handleKeyDown(e) {
-		const key = e.keyCode;
+		const key = e.key;
+		console.log(e)
 		let newDirection;
 		switch (key) {
-			case 37:
+			case "ArrowLeft":
 				newDirection = "left";
 				break;
-			case 38:
+			case "ArrowUp":
 				newDirection = "up";
 				break;
-			case 39:
+			case "ArrowRight":
 				newDirection = "right";
 				break;
-			case 40:
+			case "ArrowDown":
 				newDirection = "down";
 				break;
-			case 32:
+			case " ":
 				restart();
 				return;
 			default:
@@ -234,3 +237,5 @@
 		snakee.setDirection(newDirection);
 	}
 }
+
+document.querySelector("footer").textContent = new Date().getFullYear()
