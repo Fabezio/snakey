@@ -78,8 +78,8 @@
 	}
 
 	function restart() {
-		newGame()
 		clearTimeout(timeout);
+		newGame()
 	}
 
 	function drawScore() {
